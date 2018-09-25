@@ -1,0 +1,385 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">/Users/cyber/Development/Go/GoSimpleServer/controller.go (17.3%)</option>
+				
+				<option value="file1">/Users/cyber/Development/Go/GoSimpleServer/server.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">// controller.go
+// Jeremy J. Kerby
+// Process data as needed in and out of the system
+package main
+
+import (
+    "log"
+    "strconv"
+    "strings"
+)
+
+// We know the type of data we are expecting
+type Record struct {
+    Exam        float64     `json: "exam"`
+    StudentId   string      `json: "studentId"`
+    Score       float64     `json: "score"`
+}
+
+// initialize data var as slice Record struct
+var data []Record
+
+// save record into slice as we get them
+func saveRecord(r map[string]interface{}) <span class="cov0" title="0">{
+    log.Print("saveRecord(): ", r)
+
+    var sid string
+    var exam, score float64
+    // perform some error handling
+    if str, ok := r["studentId"].(string); ok </span><span class="cov0" title="0">{
+        sid = str
+    }</span> else<span class="cov0" title="0"> {
+        log.Print("Error: saveRecord(): Not given string type.")
+    }</span>
+    // perform some error handling
+    <span class="cov0" title="0">if eStr, ok := r["exam"].(float64); ok </span><span class="cov0" title="0">{
+        exam = eStr
+    }</span> else<span class="cov0" title="0"> {
+        log.Print("Error: saveRecord(): Not given float64 type.")
+    }</span>
+    // perform some error handling
+    <span class="cov0" title="0">if sStr, ok := r["score"].(float64); ok </span><span class="cov0" title="0">{
+        score = sStr
+    }</span> else<span class="cov0" title="0"> {
+        log.Print("Error: saveRecord(): Not given float64 type.")
+    }</span>
+
+    <span class="cov0" title="0">data = append(data, Record{Exam: exam, StudentId: sid, Score: score})</span> // append new record
+}
+
+// return all current known students
+func getAllStudentData() []string <span class="cov8" title="1">{
+    studs := make(map[string]bool)
+    for _, d := range data </span><span class="cov8" title="1">{
+        studs[d.StudentId] = true
+    }</span>
+
+    // make unique map of student names
+    <span class="cov8" title="1">ids := make([]string, 0) // create a new slice
+    for d := range studs </span><span class="cov8" title="1">{
+        ids = append(ids, d)
+    }</span> 
+
+    <span class="cov8" title="1">return ids</span>
+}
+
+// return all current exams and avaerage score for given student
+func getStudentData(id string) (float64, []Record) <span class="cov0" title="0">{
+    log.Print("getStudentData(): id :&gt; ", id)
+
+    scores := make([]Record, 0) // create a new slice
+    for _, d := range data </span><span class="cov0" title="0">{
+        if d.StudentId == id </span><span class="cov0" title="0">{
+            scores = append(scores, d)
+        }</span>
+    }
+
+    <span class="cov0" title="0">var scoresLen int = len(scores) // calculate average
+    var scoresSum float64 = 0
+    for _, s := range scores </span><span class="cov0" title="0">{
+        scoresSum = scoresSum + s.Score
+    }</span>
+
+    <span class="cov0" title="0">var scoresAvg float64 = calculateAverage(scoresSum, float64(scoresLen))
+
+    return scoresAvg, scores</span> // return slice and average
+}
+
+// return all current known exams
+func getAllExamData() []float64 <span class="cov0" title="0">{
+    studs := make(map[float64]bool)
+    for _, d := range data </span><span class="cov0" title="0">{
+        studs[d.Exam] = true
+    }</span>
+
+    <span class="cov0" title="0">ids := make([]float64, 0) // create a new slice
+    for d := range studs </span><span class="cov0" title="0">{
+        ids = append(ids, d)
+    }</span> 
+
+    <span class="cov0" title="0">return ids</span> 
+}
+
+// return all current exam results from all students and avaerage score for given exam number 
+func getExamData(number string) (float64, []Record)<span class="cov0" title="0">{
+    log.Print("getExamData(): number :&gt; ", number)
+
+    // trim special chars and convert to float64
+    numberFloat, _ := strconv.ParseFloat(strings.TrimSpace(number), 64)
+
+    scores := make([]Record, 0) // create a new slice
+    for _, d := range data </span><span class="cov0" title="0">{
+        if d.Exam == numberFloat </span><span class="cov0" title="0">{
+            scores = append(scores, d)
+        }</span>
+    }
+
+    <span class="cov0" title="0">var scoresLen int = len(scores) // calculate average
+    var scoresSum float64 = 0
+    for _, s := range scores </span><span class="cov0" title="0">{
+        scoresSum = scoresSum + s.Score
+    }</span>
+
+    <span class="cov0" title="0">var scoresAvg float64 = calculateAverage(scoresSum, float64(scoresLen))
+
+    return scoresAvg, scores</span> // return slice and average
+}
+
+// helper function to calculate average score when needed
+func calculateAverage(sSum float64, sLen float64) (float64) <span class="cov8" title="1">{
+    var avg float64 = sSum / sLen
+    return avg
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">// server.go
+// Jeremy J. Kerby
+// Server logic routes and handlers
+package main
+
+import (
+    "bufio"
+    "encoding/json"
+    "github.com/gorilla/mux"
+    "log"
+    "net/http"
+    "strings"
+)
+
+func readInData() <span class="cov0" title="0">{
+    var count int = 0
+    var choice int = 100 // configure
+    var url string = "http://live-test-scores.herokuapp.com/scores" // configure
+    resp, err := http.Get(url)
+
+    if err != nil </span><span class="cov0" title="0">{
+        log.Fatal(err)
+    }</span> else<span class="cov0" title="0"> {
+        reader := bufio.NewReader(resp.Body)
+
+        for </span><span class="cov0" title="0">{
+            line, err := reader.ReadBytes('\n')
+            if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+            }</span> else<span class="cov0" title="0"> {
+                if strings.Contains(string(line), "data") </span><span class="cov0" title="0">{
+                    recordMap := make(map[string]interface{})
+
+                    stuff := string(line[6:]) // trim line
+                    json.Unmarshal([]byte(stuff), &amp;recordMap)
+                    saveRecord(recordMap) // send data to controller
+
+                    count = count + 1
+                    if count &gt;= choice </span><span class="cov0" title="0">{
+                        break</span>
+                    }
+                }
+            }
+        }
+    }
+}
+
+//  list all students that have received at least one test score
+func getStudents (w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+    switch r.Method </span>{
+        case http.MethodGet:<span class="cov0" title="0">
+            students := getAllStudentData()
+            payload := map[string][]string{} // form payload
+            payload["students"] = students 
+
+            log.Print("getStudents(): payload: ", payload)
+            w.Header().Set("Content-Type", "application/json") // serve json not text
+            json.NewEncoder(w).Encode(payload)</span> // serve json
+        default:<span class="cov0" title="0">
+            var msg string = "HTTP/1.1 405 - Method Not Allowed"
+
+            log.Print("getStudents(): ", msg)
+            w.Header().Set("Content-Type", "application/json")
+            json.NewEncoder(w).Encode(msg)</span>
+    }
+}
+
+// list test results for student, provides student's avg score for all exams
+func getStudent (w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+    switch r.Method </span>{
+        case http.MethodGet:<span class="cov0" title="0">
+            vars := mux.Vars(r) // get vars
+            val1, val2 := getStudentData(vars["id"])
+            payload := make(map[string]interface{})
+            payload["average"] = val1
+            payload["scores"] = val2
+
+            log.Print("getStudent(): payload: ", payload)
+            w.Header().Set("Content-Type", "application/json") // serve json not text
+            json.NewEncoder(w).Encode(payload)</span> // serve json
+        default:<span class="cov0" title="0">
+            var msg string = "HTTP/1.1 405 - Method Not Allowed"
+
+            log.Print("getStudent(): ", msg)
+            w.Header().Set("Content-Type", "application/json")
+            json.NewEncoder(w).Encode(msg)</span>
+    }
+}
+
+// list all exams that have been recorded
+func getExams (w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+    switch r.Method </span>{
+        case http.MethodGet:<span class="cov0" title="0">
+            examsData := getAllExamData()
+            payload := map[string][]float64{} // form payload
+            payload["exams"] = examsData
+
+            log.Print("getExams(): payload: ", payload)
+            w.Header().Set("Content-Type", "application/json") // serve json not text
+            json.NewEncoder(w).Encode(payload)</span> // serve json
+        default:<span class="cov0" title="0">
+            var msg string = "HTTP/1.1 405 - Method Not Allowed"
+
+            log.Print("getExams(): ", msg)
+            w.Header().Set("Content-Type", "application/json")
+            json.NewEncoder(w).Encode(msg)</span>
+    }
+}
+
+// list all results for exam, provides avg score across all students
+func getExam (w http.ResponseWriter, r *http.Request) <span class="cov0" title="0">{
+    switch r.Method </span>{
+        case http.MethodGet:<span class="cov0" title="0">
+            vars := mux.Vars(r) // get vars
+            val1, val2 := getExamData(vars["number"])
+            payload := make(map[string]interface{})
+            payload["average"] = val1
+            payload["scores"] = val2
+
+            log.Print("getExam(): payload: ", payload)
+            w.Header().Set("Content-Type", "application/json") // serve json not text
+            json.NewEncoder(w).Encode(payload)</span> // serve json
+        default:<span class="cov0" title="0">
+            var msg string = "HTTP/1.1 405 - Method Not Allowed"
+
+            log.Print("getExam(): ", msg)
+            w.Header().Set("Content-Type", "application/json")
+            json.NewEncoder(w).Encode(msg)</span>
+    }
+}
+
+func main() <span class="cov0" title="0">{
+    r := mux.NewRouter() // initialize router
+    
+    log.Print("Reading in data...")
+    readInData()
+    log.Print("Data read in complete.")
+
+    // register route handlers
+    r.HandleFunc("/api/students", getStudents)
+    r.HandleFunc("/api/students/{id}", getStudent)
+    r.HandleFunc("/api/exams", getExams)
+    r.HandleFunc("/api/exams/{number}", getExam)
+
+    log.Print("Server is now listening...")
+    http.ListenAndServe(":9000", r) // execute server
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
